@@ -1,6 +1,0 @@
-[package]
-name = "thedb"
-version = "1.0.0"
-authors = ["Fredrik Meringdal <fredrik.meringdal@tietoevry.com>"]
-
-[dependencies]
