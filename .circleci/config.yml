@@ -1,0 +1,16 @@
+version: 2.1
+jobs:
+  test:
+    steps:
+      - checkout
+      - run:
+        name: Install cargo
+        command: 'curl https://sh.rustup.rs -sSf | sh'
+      - run:
+        name: Running tests
+        command: './test.sh'
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
