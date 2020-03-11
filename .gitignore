@@ -1,5 +1,4 @@
-  
-projects/storageengine/target/  
-projects/webserver/target/
-/target/
+/target/  
 **/*.rs.bk
+
+Cargo.lock
