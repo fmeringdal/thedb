@@ -16,7 +16,7 @@ pub mod request;
 pub mod response;
 
 mod router;
-pub use router::{Router, Route};
+pub use router::{Router};
 
 pub use request::Request;
 pub use response::Response;
@@ -27,35 +27,6 @@ pub struct Server {
 }
 
 pub struct ArcServer(Arc<Server>);
-
-fn paths_match(route_path: &String, called_path: &String, req: &mut Request) -> bool {
-    if *route_path == *called_path {
-        return true;
-    }
-
-    let route_path_dir: Vec<&str> = route_path.split("/").collect();
-    let called_path_dir: Vec<&str> = called_path.split("/").collect();
-    if route_path_dir.len() != called_path_dir.len() {
-        return false;
-    }
-
-    for i in 0..route_path_dir.len() {
-        let nested_route_path = String::from(route_path_dir[i]);
-        let nested_called_path = String::from(called_path_dir[i]);
-        if nested_route_path.starts_with(":") {
-           let route_param_name = &nested_route_path[1..];
-           let route_param_value = nested_called_path;
-        
-           req.insert_route_param(String::from(route_param_name), route_param_value);
-        } else {
-            if nested_route_path != nested_called_path {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
 
 impl Server {
     pub fn new() -> Self {
@@ -68,6 +39,12 @@ impl Server {
             pool: Arc::new(Mutex::new(pool)),
             mount_router
         };
+    }
+
+    // maybe use middleware instead of nested ?
+    pub fn nested(&mut self, relative_path: String, mut router: Router) {
+        router.set_path(relative_path);
+        self.mount_router.create_child_router(router);
     }
 
     pub fn get(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
@@ -87,18 +64,19 @@ impl Server {
         println!("New request [START]");
         println!("{}", request);
         println!("New request [DONE]");
-        let parts: Vec<&str> = request.split("\n\r\n").collect();
-        if parts.len() != 2 {
-            println!("Incorrect HTTP");
-            return;
-        }
+        // let parts: Vec<&str> = request.split("\n\r\n").collect();
+        // println!("{} length", parts.len());
+        // if parts.len() < 2 {
+        //     println!("Incorrect HTTP");
+        //     return;
+        // }
         
-        let mut headers: Vec<&str> = parts[0].split("\n").collect();
-        headers.remove(0); // remove reuqest line
+        // let mut headers: Vec<&str> = parts[0].split("\n").collect();
+        // headers.remove(0); // remove reuqest line
 
 
-        let message_body = parts[1];
-        println!("message_body: {}", message_body);
+        // let message_body = parts[1];
+        // println!("message_body: {}", message_body);
 
         // let val = json!(message_body);
         // println!("found body params: {}", val);
@@ -134,7 +112,6 @@ impl Server {
     pub fn listen(self, port: i32) -> i32 {
         let bind_to_address = format!("127.0.0.1:{}", port);
 
-    
         let listener = TcpListener::bind(bind_to_address).unwrap();
 
     

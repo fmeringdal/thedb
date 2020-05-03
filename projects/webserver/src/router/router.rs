@@ -33,6 +33,7 @@ fn paths_match(route_path: &String, called_path: &String) -> bool {
 }
 
 pub struct Router {
+    path: String,
     routes: Vec<Route>,
     childs: Vec<Router>
 }
@@ -40,6 +41,7 @@ pub struct Router {
 impl Router {
     pub fn new() -> Self {
         Router {
+            path: String::from(""),
             routes: vec![],
             childs: vec![]
         }
@@ -54,6 +56,10 @@ impl Router {
         
         self.routes.push(route);
     }
+
+    pub fn create_child_router(&mut self, router: Router){
+        self.childs.push(router);
+    }
     
     pub fn get(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
       // add to route  
@@ -65,19 +71,32 @@ impl Router {
         // add to route  
         let method = String::from("POST");
         self.create_route(path, f, method);
-      }
+    }
+
+    pub fn set_path(&mut self, path: String){
+        println!("########################################################################################");
+        println!("Setting path: {}", path);
+        
+
+        self.path = path;
+    }
 
     // maybe use middleware instead of nested ?
-    pub fn nested(&mut self, router: Router) {
-        // add to childs 
+    pub fn nested(&mut self, relative_path: String, mut router: Router) {
+        let path = format!("{}{}", self.path, relative_path);
+        router.set_path(path);
         self.childs.push(router);
     }
 
     pub fn handle_request(&self, req: &mut Request, res: &mut Response) -> bool {
+        println!("Handle request for path: {}", req.path);
         // look through routes
         for route in &self.routes {
+            // println!("Checking child path: {}", route.path);
+            let path = format!("{}{}", self.path, route.path);
+            println!("With path: {}", path);
             if route.method == req.method &&
-            paths_match(&route.path, &req.path) {
+            paths_match(&path, &req.path) {
                 route.handler(req, res);
                 return true;
             }
