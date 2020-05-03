@@ -76,24 +76,23 @@ impl Router {
     pub fn set_path(&mut self, path: String){
         println!("########################################################################################");
         println!("Setting path: {}", path);
-        
 
         self.path = path;
     }
 
     // maybe use middleware instead of nested ?
     pub fn nested(&mut self, relative_path: String, mut router: Router) {
-        let path = format!("{}{}", self.path, relative_path);
-        router.set_path(path);
+        // let path = format!("{}{}", self.path, relative_path);
+        router.set_path(relative_path);
         self.childs.push(router);
     }
 
-    pub fn handle_request(&self, req: &mut Request, res: &mut Response) -> bool {
+    pub fn handle_request(&self, req: &mut Request, res: &mut Response, parent_path: &String) -> bool {
         println!("Handle request for path: {}", req.path);
         // look through routes
         for route in &self.routes {
-            // println!("Checking child path: {}", route.path);
-            let path = format!("{}{}", self.path, route.path);
+            println!("Checking child path: {}", route.path);
+            let path = format!("{}{}{}", parent_path, self.path, route.path);
             println!("With path: {}", path);
             if route.method == req.method &&
             paths_match(&path, &req.path) {
@@ -106,7 +105,7 @@ impl Router {
 
         // look through childs
         for child_router in &self.childs {
-            if child_router.handle_request(req, res) {
+            if child_router.handle_request(req, res, &self.path) {
                 return true;
             }
         }

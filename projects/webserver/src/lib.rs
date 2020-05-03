@@ -96,7 +96,7 @@ impl Server {
             let mut req = Request::new(method, path);
             let mut res = Response::new();
 
-            &arc_server.mount_router.handle_request(&mut req, &mut res);
+            &arc_server.mount_router.handle_request(&mut req, &mut res, &String::from(""));
 
             let status = res.get_status();
             let status_line = format!("HTTP/1.1 {} OK\r\n\r\n", status);
