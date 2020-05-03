@@ -4,7 +4,7 @@ pub struct Request {
     headers: u32,
     query_params: u32,
     body_params: u32,
-    route_params: HashMap<String, String>,
+    pub route_params: HashMap<String, String>,
     pub method: String,
     pub path: String
 }

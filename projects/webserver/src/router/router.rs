@@ -3,6 +3,8 @@ use crate::router::Route;
 use crate::request::Request;
 use crate::response::Response;
 
+use std::collections::HashMap;
+
 fn paths_match(route_path: &String, called_path: &String) -> bool {
     if *route_path == *called_path {
         return true;
@@ -30,6 +32,26 @@ fn paths_match(route_path: &String, called_path: &String) -> bool {
     }
 
     return true;
+}
+
+fn collect_route_params(route_path: &String, called_path: &String) -> HashMap<String, String> {
+
+    let route_path_dir: Vec<&str> = route_path.split("/").collect();
+    let called_path_dir: Vec<&str> = called_path.split("/").collect();
+
+    let mut params = HashMap::new();
+
+    for i in 0..route_path_dir.len() {
+        let nested_route_path = String::from(route_path_dir[i]);
+        let nested_called_path = String::from(called_path_dir[i]);
+        if nested_route_path.starts_with(":") {
+           let route_param_name = &nested_route_path[1..];
+           let route_param_value = nested_called_path;
+            params.insert(String::from(route_param_name), route_param_value);
+        }
+    }
+
+    return params;
 }
 
 fn path_is_subpath(route_path: &String, called_path: &String) -> bool {
@@ -109,7 +131,7 @@ impl Router {
         self.childs.push(router);
     }
 
-    pub fn handle_request(&self, req: &mut Request, res: &mut Response, parent_path: &String) -> bool {
+    pub fn handle_request(&self, mut req: &mut Request, res: &mut Response, parent_path: &String) -> bool {
         
         let router_path = format!("{}{}", parent_path, self.path);
         if !path_is_subpath(&router_path, &req.path) {
@@ -121,6 +143,8 @@ impl Router {
             let path = format!("{}{}", router_path, route.path);
             if route.method == req.method &&
             paths_match(&path, &req.path) {
+                let route_params = collect_route_params(&path, &req.path);
+                req.route_params = route_params;
                 route.handler(req, res);
                 return true;
             }

@@ -68,6 +68,6 @@ mod tests {
         server.nested(String::from("/hallois"), router);
 
 
-        // server.listen(7878);
+        server.listen(7878);
     }
 }
