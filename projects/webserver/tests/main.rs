@@ -45,6 +45,6 @@ mod tests {
         server.get(String::from("/test/:testvar"), Box::new(handler2));
         server.post(String::from("/test"), Box::new(handler3));
 
-        server.listen(7878);
+        // server.listen(7878);
     }
 }
