@@ -57,7 +57,7 @@ impl Route {
 
 pub struct Server {
     pool: Arc<Mutex<ThreadPool>>,
-    _routes: Arc<Mutex<Vec<Route>>>
+    _routes: Vec<Route>
 }
 
 pub struct ArcServer(Arc<Server>);
@@ -69,13 +69,13 @@ impl Server {
         
         return Server {
             pool: Arc::new(Mutex::new(pool)),
-            _routes: Arc::new(Mutex::new(routes))
+            _routes: routes
         };
     }
 
     pub fn get(&mut self, path: String, f: Box<dyn Fn() + Send + Sync + 'static> ){
         
-        let method = String::from("get");
+        let method = String::from("GET");
 
         let route = Route {
             path,
@@ -83,20 +83,12 @@ impl Server {
             method
         };
         
-        let mut routes = self._routes.lock().unwrap();
-        routes.push(route);
+        self._routes.push(route);
     }
 
     fn handle_connection(mut stream: TcpStream, arc_server: Arc<Server>) {
         println!("inside handle connection");
         let mut buffer = [0; 512];
-        println!("dinef buffer");
-        println!("cloned arc");
-        println!("Te routes lenght: {}", arc_server._routes.lock().unwrap().len());
-        // let routes = arc_server._routes.lock().unwrap();
-        // for route in routes {
-
-        // }
 
         stream.read(&mut buffer).unwrap();
     
@@ -108,6 +100,15 @@ impl Server {
         if parsed.len() >= 2 {
             let method = parsed[0];
             let path = parsed[1];
+            for i in 0..arc_server._routes.len() {
+                if arc_server._routes[i].method == method &&
+                    arc_server._routes[i].path == path {
+                    println!("This was a match!!!");
+                    let f = &arc_server._routes[i].handler;
+                    f();
+                    break;
+                }
+            }
         }
 
     

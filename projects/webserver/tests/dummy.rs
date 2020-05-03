@@ -19,7 +19,7 @@ mod tests {
         let mut server = Server::new();
 
         let handler = || {
-            println!("Hello world");
+            println!("Hello world from route handler!! :D");
         };
 
         server.get(String::from("/test"), Box::new(handler));
