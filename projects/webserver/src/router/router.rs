@@ -118,9 +118,6 @@ impl Router {
     }
 
     pub fn set_path(&mut self, path: String){
-        println!("########################################################################################");
-        println!("Setting path: {}", path);
-
         self.path = path;
     }
 

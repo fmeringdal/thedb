@@ -10,6 +10,7 @@ mod thread_pool;
 use thread_pool::ThreadPool;
 use std::thread;
 use std::time::Duration;
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 pub mod request;
@@ -31,8 +32,6 @@ pub struct ArcServer(Arc<Server>);
 impl Server {
     pub fn new() -> Self {
         let pool = ThreadPool::new(4);
-        // let routes = vec![];
-        
         let mount_router = Router::new();
 
         return Server {
@@ -64,12 +63,15 @@ impl Server {
         println!("New request [START]");
         println!("{}", request);
         println!("New request [DONE]");
-        // let parts: Vec<&str> = request.split("\n\r\n").collect();
-        // println!("{} length", parts.len());
-        // if parts.len() < 2 {
-        //     println!("Incorrect HTTP");
-        //     return;
-        // }
+        let parts: Vec<&str> = request.split("\n\r\n").collect();
+        let mut request_headers: Vec<&str> = parts[0].split("\n").collect();
+        request_headers.remove(0); // remove request line
+        let mut headers: HashMap<String, String> = HashMap::new();
+
+        for header in &request_headers {
+            let header: Vec<&str> = header.split(": ").collect();
+            headers.insert(String::from(header[0]), String::from(header[1]));
+        }
         
         // let mut headers: Vec<&str> = parts[0].split("\n").collect();
         // headers.remove(0); // remove reuqest line
@@ -96,6 +98,7 @@ impl Server {
             let mut req = Request::new(method, path);
             let mut res = Response::new();
 
+            req.headers = headers;
             &arc_server.mount_router.handle_request(&mut req, &mut res, &String::from(""));
 
             let status = res.get_status();
@@ -109,17 +112,13 @@ impl Server {
     }
 
 
-    pub fn listen(self, port: i32) -> i32 {
+    pub fn listen(self, port: i32) {
         let bind_to_address = format!("127.0.0.1:{}", port);
 
         let listener = TcpListener::bind(bind_to_address).unwrap();
-
-    
         println!("Listening on port: {}", port);
 
         let arc = Arc::new(self);
-
-        // let routes = self._routes.lock().unwrap();
 
         for stream in listener.incoming(){
             let stream = stream.unwrap();
@@ -130,10 +129,9 @@ impl Server {
                 Server::handle_connection(stream, arc2);
             });
         }
-        port
     }
 
     pub fn close(&self){
-        drop(&self.pool);
+        drop(&self.pool.lock().unwrap());
     }
 }

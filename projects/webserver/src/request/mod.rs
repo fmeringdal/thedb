@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 pub struct Request {
-    headers: u32,
+    pub headers: HashMap<String, String>,
     query_params: u32,
     body_params: u32,
     pub route_params: HashMap<String, String>,
@@ -12,7 +12,7 @@ pub struct Request {
 impl Request {
     pub fn new(method: String, path: String) -> Self {
         Request {
-            headers: 0,
+            headers: HashMap::new(),
             query_params: 0,
             body_params: 0,
             route_params: HashMap::new(),

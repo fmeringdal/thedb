@@ -31,7 +31,12 @@ mod tests {
             println!("Hello world from the seconf route handler!! :D");
             let var = req.route_params().get("testvar");
             res.status(200);
-            res.send(String::from("Hello world from send!! :D"));
+            let token = match req.headers.get("token") {
+                Some(token) => token,
+                None => "Does not exist",
+            };
+
+            res.send(String::from(format!("Token is: {}", token)));
             match var {
                 Some(val) => println!("Hello variable: {}", val),
                 None => println!("Did not find variable"),
@@ -68,6 +73,6 @@ mod tests {
         server.nested(String::from("/hallois"), router);
 
 
-        server.listen(7878);
+        // server.listen(7878);
     }
 }
