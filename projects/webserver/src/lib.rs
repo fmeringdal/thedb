@@ -62,6 +62,31 @@ pub struct Server {
 
 pub struct ArcServer(Arc<Server>);
 
+fn paths_match(route_path: &String, called_path: &String) -> bool {
+    if *route_path == *called_path {
+        return true;
+    }
+
+    let route_path_dir: Vec<&str> = route_path.split("/").collect();
+    let called_path_dir: Vec<&str> = called_path.split("/").collect();
+    if route_path_dir.len() != called_path_dir.len() {
+        return false;
+    }
+
+    for i in 0..route_path_dir.len() {
+        let nested_route_path = String::from(route_path_dir[i]);
+        let nested_called_path = String::from(called_path_dir[i]);
+        if !nested_route_path.starts_with(":") {
+            
+            if nested_route_path != nested_called_path {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 impl Server {
     pub fn new() -> Self {
         let pool = ThreadPool::new(4);
@@ -87,23 +112,19 @@ impl Server {
     }
 
     fn handle_connection(mut stream: TcpStream, arc_server: Arc<Server>) {
-        println!("inside handle connection");
         let mut buffer = [0; 512];
 
         stream.read(&mut buffer).unwrap();
     
-        println!("New request");
         let request = String::from_utf8_lossy(&buffer);
-        println!("{}", request);
         let parsed: Vec<&str> = request.split_whitespace().collect();
 
         if parsed.len() >= 2 {
             let method = parsed[0];
-            let path = parsed[1];
+            let path = String::from(parsed[1]);
             for i in 0..arc_server._routes.len() {
                 if arc_server._routes[i].method == method &&
-                    arc_server._routes[i].path == path {
-                    println!("This was a match!!!");
+                 paths_match(&arc_server._routes[i].path, &path) {
                     let f = &arc_server._routes[i].handler;
                     f();
                     break;
@@ -111,6 +132,11 @@ impl Server {
             }
         }
 
+        let (status_line, response) = ("HTTP/1.1 200 OK\r\n\r\n", "200 Ok");
+
+        let response = format!("{}{}", status_line, response);
+
+        stream.write(response.as_bytes()).unwrap();
     
         stream.flush().unwrap();
     }

@@ -19,10 +19,18 @@ mod tests {
         let mut server = Server::new();
 
         let handler = || {
-            println!("Hello world from route handler!! :D");
+            println!("##########################################################################");
+            println!("Hello world from the first route handler!! :D");
+        };
+
+        
+        let handler2 = || {
+            println!("##########################################################################");
+            println!("Hello world from the seconf route handler!! :D");
         };
 
         server.get(String::from("/test"), Box::new(handler));
+        server.get(String::from("/test/:23124"), Box::new(handler2));
 
         server.listen(7878);
         // server.close();
