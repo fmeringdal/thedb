@@ -2,6 +2,8 @@
 
 ## Quick start
 ```rust
+use webserver::{Server, Request, Response}; // Import into scope
+
 // Create the server
 let mut server = Server::new();
 
@@ -40,6 +42,9 @@ Nested routing is also possible. This is achieved by mounting different ```Route
 be composed together by calling ```.mount``` on the parent Router with the child Router. Server will always act as the root router from which all requests will first be directed to.
 An example app that leverages three levels of nested Routers.
 ```rust
+use webserver::{Server, Request, Response}; // Import into scope
+
+// Initialize server and routers
 let mut server = Server::new();
 let mut user_router = Router::new();
 let mut post_router = Router::new();
