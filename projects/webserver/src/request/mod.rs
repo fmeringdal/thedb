@@ -1,9 +1,10 @@
 use std::collections::HashMap;
+use serde_json::{Value, from_str};
 
 pub struct Request {
     pub headers: HashMap<String, String>,
-    query_params: u32,
-    body_params: u32,
+    pub query_params: HashMap<String, String>,
+    pub body: Value,
     pub route_params: HashMap<String, String>,
     pub method: String,
     pub path: String
@@ -11,10 +12,13 @@ pub struct Request {
 
 impl Request {
     pub fn new(method: String, path: String) -> Self {
+
+        let init_body = "{}";
+
         Request {
             headers: HashMap::new(),
-            query_params: 0,
-            body_params: 0,
+            query_params: HashMap::new(),
+            body: from_str(&init_body).unwrap(),
             route_params: HashMap::new(),
             method,
             path
@@ -23,10 +27,5 @@ impl Request {
 
     pub fn insert_route_param(&mut self, name: String, value: String){
         self.route_params.insert(name, value);
-    }
-
-    pub fn route_params(&self) -> &HashMap<String, String> {
-        
-        return &self.route_params;
     }
 }

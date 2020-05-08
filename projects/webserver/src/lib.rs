@@ -1,15 +1,12 @@
-// extern crate serde_json;
+extern crate serde_json;
 
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::net::TcpListener;
 use std::mem::drop;
-// use serde_json::json;
 
 mod thread_pool;
 use thread_pool::ThreadPool;
-use std::thread;
-use std::time::Duration;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard};
 
@@ -40,18 +37,18 @@ impl Server {
         };
     }
 
-    // maybe use middleware instead of nested ?
-    pub fn nested(&mut self, relative_path: String, mut router: Router) {
+    pub fn mount(&mut self, relative_path: &str, mut router: Router) {
+        let relative_path = String::from(relative_path);
         router.set_path(relative_path);
         self.mount_router.create_child_router(router);
     }
 
-    pub fn get(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
+    pub fn get(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
         self.mount_router.get(path, f);
     }
 
-    pub fn post(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
-        self.mount_router.post(path, f);
+    pub fn post(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
+        self.mount_router.post(&path, f);
     }
 
     fn handle_connection(mut stream: TcpStream, arc_server: Arc<Server>) {

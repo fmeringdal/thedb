@@ -14,7 +14,7 @@ let controller = |req: &Request, res: &mut Response| {
 };
 
 // Register controller on server to be triggered by a request to path / and method: GET
-let path = String::from("/");
+let path = "/";
 server.get(path, Box::new(controller));
 
 // Start the server on port
@@ -24,7 +24,7 @@ server.listen(PORT);
 ## Route params
 You can also have dynamic paths with route parameters in the path.
 To specify a route parameters in the path use a colon followed by the name of the variable, e.g, ```/users/:userid```.
-The parameter will be available on the request object with: ```req.route_params().get("userid")```
+The parameter will be available on the request object with: ```req.route_params.get("userid")```
 	
 
 ## Header variables
@@ -56,8 +56,8 @@ let createUser = |req: &Request, res: &mut Response| {
     println!("Create user controller");
 };
 
-user_router.get(String::from("/:userId"), Box::new(getUser)); // Will be accessible at path: /users/:userId
-user_router.post(String::from("/"), Box::new(createUser)); // Will be accessible at path: /users
+user_router.get("/:userId", Box::new(getUser)); // Will be accessible at path: /users/:userId
+user_router.post("/", Box::new(createUser)); // Will be accessible at path: /users
 
 let getPost = |req: &Request, res: &mut Response| {
     println!("Get post controller");
@@ -67,11 +67,11 @@ let createPost = |req: &Request, res: &mut Response| {
     println!("Create post controller");
 };
 
-post_router.get(String::from("/:postId"), Box::new(getPost)); // Will be accessible at path: /posts/:postId
-post_router.post(String::from("/"), Box::new(createPost)); // Will be accessible at path: /posts
+post_router.get("/:postId", Box::new(getPost)); // Will be accessible at path: /posts/:postId
+post_router.post("/", Box::new(createPost)); // Will be accessible at path: /posts
 
-let user_router_path_prefix = String::from("/users");
-let post_router_path_prefix = String::from("/posts");
+let user_router_path_prefix = "/users";
+let post_router_path_prefix = "/posts";
 
 // Mount routers into server (parent router)
 server.mount(user_router_path_prefix, user_router); 

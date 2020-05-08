@@ -105,15 +105,17 @@ impl Router {
         self.childs.push(router);
     }
     
-    pub fn get(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
+    pub fn get(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
       // add to route  
       let method = String::from("GET");
+      let path = String::from(path);
       self.create_route(path, f, method);
     }
 
-    pub fn post(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
+    pub fn post(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
         // add to route  
         let method = String::from("POST");
+        let path = String::from(path);
         self.create_route(path, f, method);
     }
 
@@ -121,9 +123,8 @@ impl Router {
         self.path = path;
     }
 
-    // maybe use middleware instead of nested ?
-    pub fn nested(&mut self, relative_path: String, mut router: Router) {
-        // let path = format!("{}{}", self.path, relative_path);
+    pub fn mount(&mut self, relative_path: &str, mut router: Router) {
+        let relative_path = String::from(relative_path);
         router.set_path(relative_path);
         self.childs.push(router);
     }
