@@ -13,13 +13,6 @@ pub struct Route {
 }
 
 impl Route {
-    // add code here
-    pub fn match_route(&self, path: String, method: String) -> bool {
-        if method == self.method {
-            return true;
-        }
-        return false;
-    }
 
     pub fn handler(&self, req: &Request, res: &mut Response){
         let handler = &self.handler;

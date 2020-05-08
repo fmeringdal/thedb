@@ -5,16 +5,18 @@ use std::net::TcpStream;
 use std::net::TcpListener;
 use std::mem::drop;
 
+use serde_json::{json, from_str};
+
 mod thread_pool;
 use thread_pool::ThreadPool;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 
 pub mod request;
 pub mod response;
 
 mod router;
-pub use router::{Router};
+pub use router::{Router, Controller, RouterService};
 
 pub use request::Request;
 pub use response::Response;
@@ -37,29 +39,12 @@ impl Server {
         };
     }
 
-    pub fn mount(&mut self, relative_path: &str, mut router: Router) {
-        let relative_path = String::from(relative_path);
-        router.set_path(relative_path);
-        self.mount_router.create_child_router(router);
-    }
-
-    pub fn get(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
-        self.mount_router.get(path, f);
-    }
-
-    pub fn post(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static> ){
-        self.mount_router.post(&path, f);
-    }
-
     fn handle_connection(mut stream: TcpStream, arc_server: Arc<Server>) {
         let mut buffer = [0; 512];
 
         stream.read(&mut buffer).unwrap();
     
         let request = String::from_utf8_lossy(&buffer);
-        println!("New request [START]");
-        println!("{}", request);
-        println!("New request [DONE]");
         let parts: Vec<&str> = request.split("\n\r\n").collect();
         let mut request_headers: Vec<&str> = parts[0].split("\n").collect();
         request_headers.remove(0); // remove request line
@@ -67,18 +52,10 @@ impl Server {
 
         for header in &request_headers {
             let header: Vec<&str> = header.split(": ").collect();
-            headers.insert(String::from(header[0]), String::from(header[1]));
+            if header.len() == 2 {
+                headers.insert(String::from(header[0]), String::from(header[1]));
+            }
         }
-        
-        // let mut headers: Vec<&str> = parts[0].split("\n").collect();
-        // headers.remove(0); // remove reuqest line
-
-
-        // let message_body = parts[1];
-        // println!("message_body: {}", message_body);
-
-        // let val = json!(message_body);
-        // println!("found body params: {}", val);
 
         let parsed: Vec<&str> = request.split_whitespace().collect();
         if parsed.len() < 2 {
@@ -88,14 +65,33 @@ impl Server {
         
             stream.flush().unwrap();
         } else {
-    
             let method = String::from(parsed[0]);
             let path = String::from(parsed[1]);
 
+            let mut body = json!({});
+            if method == "POST" || method == "PUT" || method == "DELETE" {
+                let mut message_body = parts[1];
+
+                match message_body.rfind('}') {
+                    Some(body_end) => {
+                        message_body = &message_body[0..(body_end+1)];
+                    },
+                    None => println!("Error"),
+                }
+
+                body = match from_str(message_body) {
+                    Ok(http_body) => http_body,
+                    Err(_) => {
+                        json!({})},
+                } 
+            }
+
             let mut req = Request::new(method, path);
             let mut res = Response::new();
-
+            
             req.headers = headers;
+            req.body = body;
+
             &arc_server.mount_router.handle_request(&mut req, &mut res, &String::from(""));
 
             let status = res.get_status();
@@ -130,5 +126,29 @@ impl Server {
 
     pub fn close(&self){
         drop(&self.pool.lock().unwrap());
+    }
+}
+
+impl RouterService for Server {
+    fn get(&mut self, path: &str, f: Controller){
+        self.mount_router.get(&path, f);
+    }
+  
+    fn post(&mut self, path: &str, f: Controller){
+        self.mount_router.post(&path, f);
+    }
+
+    fn put(&mut self, path: &str, f: Controller){
+        self.mount_router.put(&path, f);
+    }
+  
+    fn delete(&mut self, path: &str, f: Controller){
+        self.mount_router.delete(&path, f);
+    }
+
+    fn mount(&mut self, relative_path: &str, mut router: Router) {
+        let relative_path = String::from(relative_path);
+        router.set_path(relative_path);
+        self.mount_router.create_child_router(router);
     }
 }

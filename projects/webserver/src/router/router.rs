@@ -5,6 +5,20 @@ use crate::response::Response;
 
 use std::collections::HashMap;
 
+pub type Controller = Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>;
+
+pub trait RouterService {
+    // For registration of route controllers
+    fn get(&mut self, path: &str, f: Controller);
+    fn post(&mut self, path: &str, f: Controller);
+    fn put(&mut self, path: &str, f: Controller);
+    fn delete(&mut self, path: &str, f: Controller);
+    
+    // For mounting nested RouterServices
+    fn mount(&mut self, relative_path: &str, router: Router);
+}
+
+
 fn paths_match(route_path: &String, called_path: &String) -> bool {
     if *route_path == *called_path {
         return true;
@@ -91,7 +105,7 @@ impl Router {
         }
     }
 
-    fn create_route(&mut self, path: String, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>, method: String){
+    fn create_route(&mut self, path: String, f: Controller, method: String){
         let route = Route {
             path,
             handler: f,
@@ -105,28 +119,8 @@ impl Router {
         self.childs.push(router);
     }
     
-    pub fn get(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
-      // add to route  
-      let method = String::from("GET");
-      let path = String::from(path);
-      self.create_route(path, f, method);
-    }
-
-    pub fn post(&mut self, path: &str, f: Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>){
-        // add to route  
-        let method = String::from("POST");
-        let path = String::from(path);
-        self.create_route(path, f, method);
-    }
-
     pub fn set_path(&mut self, path: String){
         self.path = path;
-    }
-
-    pub fn mount(&mut self, relative_path: &str, mut router: Router) {
-        let relative_path = String::from(relative_path);
-        router.set_path(relative_path);
-        self.childs.push(router);
     }
 
     pub fn handle_request(&self, mut req: &mut Request, res: &mut Response, parent_path: &String) -> bool {
@@ -156,5 +150,37 @@ impl Router {
         }
 
         return false;
+    }
+}
+
+impl RouterService for Router {
+    fn get(&mut self, path: &str, f: Controller){
+        let method = String::from("GET");
+        let path = String::from(path);
+        self.create_route(path, f, method);
+    }
+  
+    fn post(&mut self, path: &str, f: Controller){
+        let method = String::from("POST");
+        let path = String::from(path);
+        self.create_route(path, f, method);
+    }
+
+    fn put(&mut self, path: &str, f: Controller){
+        let method = String::from("PUT");
+        let path = String::from(path);
+        self.create_route(path, f, method);
+    }
+  
+    fn delete(&mut self, path: &str, f: Controller){
+        let method = String::from("DELETE");
+        let path = String::from(path);
+        self.create_route(path, f, method);
+    }
+
+    fn mount(&mut self, relative_path: &str, mut router: Router) {
+        let relative_path = String::from(relative_path);
+        router.set_path(relative_path);
+        self.childs.push(router);
     }
 }

@@ -19,9 +19,13 @@ impl Response {
         return self.status;
     }
 
-    pub fn send(&mut self, value: String){
+    pub fn send(&mut self, value: &str){
+        self.json = String::from(value);
+    }
+
+    pub fn json(&mut self, value: &str){
         self.status = 200;
-        self.json = value;
+        self.json = String::from(value);
     }
 
     pub fn get_json(&mut self) -> &String {
