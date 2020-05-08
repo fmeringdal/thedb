@@ -19,7 +19,11 @@ pub trait RouterService {
 }
 
 
-fn paths_match(route_path: &String, called_path: &String) -> bool {
+fn paths_match(route_path: &String, called_path: &String, req: &mut Request) -> bool {
+    // !! Hack
+    // let mut route_path = String::from(route_path);
+    // let mut called_path = String::from(called_path);
+
     if *route_path == *called_path {
         return true;
     }
@@ -30,20 +34,29 @@ fn paths_match(route_path: &String, called_path: &String) -> bool {
         return false;
     }
 
+    let mut route_params = HashMap::new();
     for i in 0..route_path_dir.len() {
-        let nested_route_path = String::from(route_path_dir[i]);
-        let nested_called_path = String::from(called_path_dir[i]);
+        let mut nested_route_path = String::from(route_path_dir[i]);
+        let mut nested_called_path = String::from(called_path_dir[i]);
         if nested_route_path.starts_with(":") {
            let route_param_name = &nested_route_path[1..];
            let route_param_value = nested_called_path;
-        
-        //    req.insert_route_param(String::from(route_param_name), route_param_value);
+           route_params.insert(String::from(route_param_name), route_param_value);
         } else {
+            if nested_route_path.ends_with("/") {
+                nested_route_path.truncate(nested_route_path.len() - 1);
+            }
+            if nested_called_path.ends_with("/") {
+                nested_called_path.truncate(nested_called_path.len() - 1);
+            }
             if nested_route_path != nested_called_path {
                 return false;
             }
         }
     }
+    
+    // When paths match then insert route params
+    req.route_params = route_params;
 
     return true;
 }

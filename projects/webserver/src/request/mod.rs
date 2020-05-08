@@ -24,8 +24,4 @@ impl Request {
             path
         }
     }
-
-    pub fn insert_route_param(&mut self, name: String, value: String){
-        self.route_params.insert(name, value);
-    }
 }
