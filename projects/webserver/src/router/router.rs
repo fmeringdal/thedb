@@ -56,7 +56,9 @@ fn paths_match(route_path: &String, called_path: &String, req: &mut Request) -> 
     }
     
     // When paths match then insert route params
-    req.route_params = route_params;
+    for (name, value) in route_params {
+        req.route_params.insert(name, value);
+    }
 
     return true;
 }
