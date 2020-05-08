@@ -19,10 +19,9 @@ pub trait RouterService {
 }
 
 
-fn paths_match(route_path: &String, called_path: &String, req: &mut Request) -> bool {
+fn paths_match(route_path: &String, req: &mut Request) -> bool {
     // !! Hack
-    // let mut route_path = String::from(route_path);
-    // let mut called_path = String::from(called_path);
+    let called_path = &req.path;
 
     if *route_path == *called_path {
         return true;
@@ -149,7 +148,7 @@ impl Router {
         for route in &self.routes {
             let path = format!("{}{}", router_path, route.path);
             if route.method == req.method &&
-            paths_match(&path, &req.path) {
+            paths_match(&path, &mut req) {
                 let route_params = collect_route_params(&path, &req.path);
                 req.route_params = route_params;
                 route.handler(req, res);
