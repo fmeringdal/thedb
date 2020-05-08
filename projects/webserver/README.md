@@ -86,6 +86,7 @@ server.listen(port);
 
 
 ## Coming features
+ - Use ```&str``` instead of ```String``` in ```Server``` and ```Router``` APIs. 
  - Middleware
  - Support for the following HTTP methods: ```PUT```, ```PATCH```, ```DELETE```
  - Make HTTP body accessable through the ```Request``` object
