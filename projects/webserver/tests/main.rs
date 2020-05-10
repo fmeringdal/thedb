@@ -1,7 +1,7 @@
-extern crate webserver;
+extern crate burner;
 
 use std::thread;
-use webserver::{Server, Request, Response, Router, RouterService};
+use burner::{Server, Request, Response, Router, RouterService};
 use std::time::Duration;
 
 
