@@ -5,6 +5,10 @@ authors = ["Fredrik Meringdal <fmeringdal@hotmail.com>"]
 edition = "2018"
 description = "Mini REST server"
 license = "MIT"
+readme = "https://github.com/fmeringdal/thedb/blob/master/projects/webserver/README.md"
+repository = "https://github.com/fmeringdal/thedb/blob/master/projects/webserver"
+keywords = ["webserver", "rest", "server", "http", "express"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
