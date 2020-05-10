@@ -32,10 +32,15 @@ Header variables are also available on the request object. Tokens and other meta
 The parameter will be available on the request object with: ```req.headers.get("HEADER_KEY")```
 
 
+## Request Body
+Request Body can be accessed by ```request.body```, e.g: ```let user_name: &str = req.body['name']``` 
+
+
 ## Returning data
 ```res.json("DATA_TO_RETURN")```
 or
-```res.send("DATA_TO_RETURN")```
+```res.send("DATA_TO_RETURN")```.
+```res.json``` sets the status code to ```200``` while ```res.send``` does not set the status code. 
 
 ## Nested routes
 Nested routing is also possible. ```Router``` objects acts as building blocks and can be composed together by calling ```.mount``` on the parent Router with the child Router. Server extends (rust doesnt support inheritance, but ```Router``` and ```Server``` are implementing the same trait which is kind of similar to interfaces in other languages). So every method on ```Router``` is also available on ```Server```. Server will always act as the root router from which all requests will first be directed to.
