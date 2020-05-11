@@ -22,7 +22,7 @@ pub use request::Request;
 pub use response::Response;
 
 pub struct Server {
-    pool: Arc<Mutex<ThreadPool>>,
+    // pool: ThreadPool,
     mount_router: Router
 }
 
@@ -30,16 +30,15 @@ pub struct ArcServer(Arc<Server>);
 
 impl Server {
     pub fn new() -> Self {
-        let pool = ThreadPool::new(4);
         let mount_router = Router::new();
 
         return Server {
-            pool: Arc::new(Mutex::new(pool)),
+            // pool: pool,
             mount_router
         };
     }
 
-    fn handle_connection(mut stream: TcpStream, arc_server: Arc<Server>) {
+    fn handle_connection(mut stream: TcpStream, server: Arc<Server>) {
         let mut buffer = [0; 512];
 
         stream.read(&mut buffer).unwrap();
@@ -92,7 +91,7 @@ impl Server {
             req.headers = headers;
             req.body = body;
 
-            &arc_server.mount_router.handle_request(&mut req, &mut res, &String::from(""));
+            server.mount_router.handle_request(&mut req, &mut res, &String::from(""));
 
             let status = res.get_status();
 
@@ -115,21 +114,23 @@ impl Server {
         let listener = TcpListener::bind(bind_to_address).unwrap();
         println!("Listening on port: {}", port);
 
-        let arc = Arc::new(self);
+        let server_arc = Arc::new(self);
 
         for stream in listener.incoming(){
             let stream = stream.unwrap();
-
-            let arc2 = Arc::clone(&arc);
-
-            arc.pool.lock().unwrap().execute(move || {
-                Server::handle_connection(stream, arc2);
+        
+            let server_arc_clone = Arc::clone(&server_arc);
+            let pool = ThreadPool::new(4);
+            
+            pool.execute(move || {
+                println!("Yo");
+                Server::handle_connection(stream, server_arc_clone);
             });
         }
     }
 
     pub fn close(&self){
-        drop(&self.pool.lock().unwrap());
+        // drop(&self.pool);
     }
 }
 
