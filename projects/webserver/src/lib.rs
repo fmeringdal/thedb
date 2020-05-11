@@ -95,9 +95,12 @@ impl Server {
             &arc_server.mount_router.handle_request(&mut req, &mut res, &String::from(""));
 
             let status = res.get_status();
-            let status_line = format!("HTTP/1.1 {} {}\r\n", status, res.status_message);
-            let content_type = format!("Content-Type: {}\r\n\r\n", "application/json;");
-            let response = format!("{}{}{}", status_line, content_type, res.get_json());
+
+            let status_line = format!("HTTP/1.1 {} {}\r\n", status, res.get_status_message());
+            let content_type = format!("Content-Length: {}\r\n", res.get_json().len());
+            let content_length = format!("Content-Type: {}\r\n", "application/json; charset=utf-8");
+            let access_control = format!("access-control-allow-origin: {}\r\n\r\n", "*");
+            let response = format!("{}{}{}{}{}", status_line, content_length, content_type, access_control, res.get_json());
     
             stream.write(response.as_bytes()).unwrap();
         

@@ -1,6 +1,6 @@
 pub struct Response {
     status: u32,
-    pub status_message: String,
+    status_message: String,
     json: String
 } 
 
@@ -26,6 +26,10 @@ impl Response {
 
     pub fn get_status(&self) -> u32 {
         return self.status;
+    }
+
+    pub fn get_status_message(&self) -> &String {
+        return &self.status_message;
     }
 
     pub fn send(&mut self, value: &str){
