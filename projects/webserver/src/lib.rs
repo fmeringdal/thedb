@@ -123,7 +123,6 @@ impl Server {
             let pool = ThreadPool::new(4);
             
             pool.execute(move || {
-                println!("Yo");
                 Server::handle_connection(stream, server_arc_clone);
             });
         }

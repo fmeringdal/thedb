@@ -37,7 +37,7 @@ impl Response {
     }
 
     pub fn json(&mut self, value: &str){
-        self.status = 200;
+        self.status(200);
         self.json = String::from(value);
     }
 

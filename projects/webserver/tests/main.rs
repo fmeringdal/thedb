@@ -21,12 +21,10 @@ mod tests {
         let mut server = Server::new();
 
         let handler = |req: &Request, res: &mut Response| {
-            println!("################# [NESTED TWICE] ################################");
-            println!("Hello world from the the NESTED route handler!! :D");
-            println!("{}", req.body["cools"]);
             res.json("Hello World");
+            res.status(200);
         };
 
-        server.post("/create", Box::new(handler));
+        server.get("/health", Box::new(handler));
     }
 }
