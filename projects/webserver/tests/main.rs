@@ -1,8 +1,8 @@
 extern crate burner;
 
-use std::thread;
+// use std::thread;
 use burner::{Server, Request, Response, Router, RouterService};
-use std::time::Duration;
+// use std::time::Duration;
 
 
 mod tests {

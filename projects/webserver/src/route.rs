@@ -1,8 +1,3 @@
-// use super::request::Request;
-// use super::response::Response;
-// use request::Request;
-// use response::Response;
-
 use crate::request::Request;
 use crate::response::Response;
 

@@ -59,8 +59,6 @@ impl Worker {
                     job();
                 }
                 Message::Terminate => {
-                    let handle = thread::current();
-
                     break;
                 }
             }
