@@ -68,7 +68,7 @@ impl Server {
             let path = String::from(parsed[1]);
 
             let mut body = json!({});
-            if method == "POST" || method == "PUT" || method == "DELETE" {
+            if parts.len() > 1 {
                 let mut message_body = parts[1];
 
                 match message_body.rfind('}') {
@@ -134,25 +134,30 @@ impl Server {
 }
 
 impl RouterService for Server {
-    fn get(&mut self, path: &str, f: Controller){
+    fn get(&mut self, path: &str, f: Controller) -> &mut Self{
         self.mount_router.get(&path, f);
+        self
     }
   
-    fn post(&mut self, path: &str, f: Controller){
+    fn post(&mut self, path: &str, f: Controller) -> &mut Self{
         self.mount_router.post(&path, f);
+        self
     }
 
-    fn put(&mut self, path: &str, f: Controller){
+    fn put(&mut self, path: &str, f: Controller) -> &mut Self{
         self.mount_router.put(&path, f);
+        self
     }
   
-    fn delete(&mut self, path: &str, f: Controller){
+    fn delete(&mut self, path: &str, f: Controller) -> &mut Self{
         self.mount_router.delete(&path, f);
+        self
     }
 
-    fn mount(&mut self, relative_path: &str, mut router: Router) {
+    fn mount(&mut self, relative_path: &str, mut router: Router) -> &mut Self {
         let relative_path = String::from(relative_path);
         router.set_path(relative_path);
         self.mount_router.create_child_router(router);
+        self
     }
 }

@@ -25,6 +25,12 @@ mod tests {
             res.status(200);
         };
 
-        server.get("/health", Box::new(handler));
+        let mut router = Router::new();
+        router.get("/esso", Box::new(handler));
+
+        server
+            .get("/health", Box::new(handler))
+            .get("/anotherroute", Box::new(handler))
+            .mount("/wassup", router);
     }
 }

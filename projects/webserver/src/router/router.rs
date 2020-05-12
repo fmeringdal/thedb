@@ -9,13 +9,13 @@ pub type Controller = Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'stati
 
 pub trait RouterService {
     // For registration of route controllers
-    fn get(&mut self, path: &str, f: Controller);
-    fn post(&mut self, path: &str, f: Controller);
-    fn put(&mut self, path: &str, f: Controller);
-    fn delete(&mut self, path: &str, f: Controller);
+    fn get(&mut self, path: &str, f: Controller) -> &mut Self;
+    fn post(&mut self, path: &str, f: Controller)-> &mut Self;
+    fn put(&mut self, path: &str, f: Controller)-> &mut Self;
+    fn delete(&mut self, path: &str, f: Controller)-> &mut Self;
     
     // For mounting nested RouterServices
-    fn mount(&mut self, relative_path: &str, router: Router);
+    fn mount(&mut self, relative_path: &str, router: Router) -> &mut Self;
 }
 
 
@@ -168,33 +168,38 @@ impl Router {
 }
 
 impl RouterService for Router {
-    fn get(&mut self, path: &str, f: Controller){
+    fn get(&mut self, path: &str, f: Controller) -> &mut Self {
         let method = String::from("GET");
         let path = String::from(path);
         self.create_route(path, f, method);
+        self
     }
   
-    fn post(&mut self, path: &str, f: Controller){
+    fn post(&mut self, path: &str, f: Controller) -> &mut Self {
         let method = String::from("POST");
         let path = String::from(path);
         self.create_route(path, f, method);
+        self
     }
 
-    fn put(&mut self, path: &str, f: Controller){
+    fn put(&mut self, path: &str, f: Controller) -> &mut Self {
         let method = String::from("PUT");
         let path = String::from(path);
         self.create_route(path, f, method);
+        self
     }
   
-    fn delete(&mut self, path: &str, f: Controller){
+    fn delete(&mut self, path: &str, f: Controller) -> &mut Self {
         let method = String::from("DELETE");
         let path = String::from(path);
         self.create_route(path, f, method);
+        self
     }
 
-    fn mount(&mut self, relative_path: &str, mut router: Router) {
+    fn mount(&mut self, relative_path: &str, mut router: Router)-> &mut Self {
         let relative_path = String::from(relative_path);
         router.set_path(relative_path);
         self.childs.push(router);
+        self
     }
 }
