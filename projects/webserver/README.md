@@ -37,10 +37,11 @@ Request Body can be accessed by ```request.body```, e.g: ```let user_name: &str 
 
 
 ## Returning data
-```res.json("DATA_TO_RETURN")```
+```res.json(json: &Value)``` for json data using ```serde_json::Value```
 or
-```res.send("DATA_TO_RETURN")```.
-```res.json``` sets the status code to ```200``` while ```res.send``` does not set the status code. 
+```res.send(msg: &str)``` for sending string messages.
+```res.json``` and ```res.send```  sets the status code to ```200``` automatically. To override it call
+```res.status(status: u32)``` after ```res.send``` or ```res.json```. 
 
 ## Nested routes
 Nested routing is also possible. ```Router``` objects acts as building blocks and can be composed together by calling ```.mount``` on the parent Router with the child Router. Server extends (rust doesnt support inheritance, but ```Router``` and ```Server``` are implementing the same trait which is kind of similar to interfaces in other languages). So every method on ```Router``` is also available on ```Server```. Server will always act as the root router from which all requests will first be directed to.

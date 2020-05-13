@@ -1,3 +1,5 @@
+use serde_json::{Value, to_string};
+
 pub struct Response {
     status: u32,
     status_message: String,
@@ -33,12 +35,15 @@ impl Response {
     }
 
     pub fn send(&mut self, value: &str){
+        self.status(200);
         self.json = String::from(value);
     }
 
-    pub fn json(&mut self, value: &str){
+    pub fn json(&mut self, value: &Value){
         self.status(200);
-        self.json = String::from(value);
+        if let Ok(response_message) = to_string(value) {
+            self.json = response_message;
+        }
     }
 
     pub fn get_json(&mut self) -> &String {

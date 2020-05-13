@@ -4,6 +4,7 @@ use std::net::TcpListener;
 
 use serde_json::{json, from_str};
 use crate::thread_pool::ThreadPool;
+// use threadpool::ThreadPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -14,7 +15,8 @@ use crate::response::Response;
 
 pub struct Server {
     // pool: ThreadPool,
-    mount_router: Router
+    mount_router: Router,
+    thread_pool_size: usize
 }
 
 impl Server {
@@ -23,8 +25,13 @@ impl Server {
 
         return Server {
             // pool: pool,
+            thread_pool_size: 4,
             mount_router
         };
+    }
+
+    pub fn set_thread_pool_size(&mut self, size: usize){
+        self.thread_pool_size = size;
     }
 
     fn handle_connection(mut stream: TcpStream, server: Arc<Server>) {
@@ -60,18 +67,15 @@ impl Server {
             if parts.len() > 1 {
                 let mut message_body = parts[1];
 
-                match message_body.rfind('}') {
-                    Some(body_end) => {
-                        message_body = &message_body[0..(body_end+1)];
-                    },
-                    None => println!("Error"),
+                if let Some(body_end) = message_body.rfind("}") {
+                    message_body = &message_body[0..(body_end+1)];
                 }
 
-                body = match from_str(message_body) {
-                    Ok(http_body) => http_body,
-                    Err(_) => {
-                        json!({})},
-                } 
+                if let Ok(http_body) = from_str(message_body) {
+                    body = http_body;
+                } else {
+                    body = json!({});
+                }
             }
 
             let mut req = Request::new(method, path);
@@ -101,15 +105,14 @@ impl Server {
         let bind_to_address = format!("127.0.0.1:{}", port);
 
         let listener = TcpListener::bind(bind_to_address).unwrap();
-        println!("Listening on port: {}", port);
+        println!("Burner is burning through requests on port: {}", port);
 
+        let pool = ThreadPool::new(self.thread_pool_size);
         let server_arc = Arc::new(self);
 
         for stream in listener.incoming(){
             let stream = stream.unwrap();
-        
             let server_arc_clone = Arc::clone(&server_arc);
-            let pool = ThreadPool::new(4);
             
             pool.execute(move || {
                 Server::handle_connection(stream, server_arc_clone);

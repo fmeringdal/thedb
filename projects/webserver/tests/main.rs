@@ -3,13 +3,11 @@ extern crate burner;
 // use std::thread;
 use burner::{Server, Request, Response, Router, RouterService};
 // use std::time::Duration;
-
+use serde_json::{json};
 
 mod tests {
 
     use super::*;
-
-
 
     #[test]
     fn dummy_test(){
@@ -20,17 +18,14 @@ mod tests {
     fn port_test(){
         let mut server = Server::new();
 
-        let handler = |req: &Request, res: &mut Response| {
-            res.json("Hello World");
+        let handler = |_req: &Request, res: &mut Response| {
+            println!("Welcome");
+            std::thread::sleep(std::time::Duration::from_secs(5));
+            let val = json!({ "tester": 2 });
+            res.json(&val);
             res.status(200);
         };
-
-        let mut router = Router::new();
-        router.get("/esso", Box::new(handler));
-
-        server
-            .get("/health", Box::new(handler))
-            .get("/anotherroute", Box::new(handler))
-            .mount("/wassup", router);
+    
+        server.get("/health", Box::new(handler));
     }
 }
