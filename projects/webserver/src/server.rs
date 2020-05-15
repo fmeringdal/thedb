@@ -5,7 +5,7 @@ use serde_json::{json, from_str};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::router::{Router, Controller, RouterService};
+use crate::router::{Router, Controller, RouterService, Middleware};
 use crate::thread_pool::ThreadPool;
 use crate::request::Request;
 use crate::response::Response;
@@ -97,6 +97,11 @@ impl RouterService for Server {
   
     fn delete(&mut self, path: &str, f: Controller) -> &mut Self{
         self.mount_router.delete(&path, f);
+        self
+    }
+
+    fn middleware(&mut self, path: &str, f: Middleware) -> &mut Self {
+        self.mount_router.middleware(path, f);
         self
     }
 

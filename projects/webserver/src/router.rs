@@ -1,10 +1,11 @@
-use crate::route::Route;
+use crate::route::{Route, MiddlewareRoute};
 use crate::request::Request;
 use crate::response::Response;
 
 use std::collections::HashMap;
 
 pub type Controller = Box<dyn Fn(&Request, &mut Response) + Send + Sync + 'static>;
+pub type Middleware = Box<dyn Fn(&Request, &Response) + Send + Sync + 'static>;
 
 pub trait RouterService {
     // For registration of route controllers
@@ -13,6 +14,9 @@ pub trait RouterService {
     fn put(&mut self, path: &str, f: Controller)-> &mut Self;
     fn delete(&mut self, path: &str, f: Controller)-> &mut Self;
     
+    // middleware
+    fn middleware(&mut self, path: &str, f: Middleware)-> &mut Self;
+
     // For mounting nested RouterServices
     fn mount(&mut self, relative_path: &str, router: Router) -> &mut Self;
 }
@@ -106,6 +110,7 @@ fn path_is_subpath(route_path: &String, called_path: &String) -> bool {
 pub struct Router {
     path: String,
     routes: Vec<Route>,
+    middleware: Vec<MiddlewareRoute>,
     childs: Vec<Router>
 }
 
@@ -114,6 +119,7 @@ impl Router {
         Router {
             path: String::from(""),
             routes: vec![],
+            middleware: vec![],
             childs: vec![]
         }
     }
@@ -121,6 +127,11 @@ impl Router {
     fn create_route(&mut self, path: String, f: Controller, method: String){
         let route = Route::new(path, f, method);
         self.routes.push(route);
+    }
+
+    fn create_middleware_route(&mut self, path: String, f: Middleware, method: String){
+        let route = MiddlewareRoute::new(path, f, method);
+        self.middleware.push(route);
     }
 
     pub fn create_child_router(&mut self, router: Router){
@@ -135,6 +146,18 @@ impl Router {
         let router_path = format!("{}{}", parent_path, self.path);
         if !path_is_subpath(&router_path, &req.path) {
             return false;
+        }
+
+        // look through middleware
+        for route in &self.routes {
+            let path = format!("{}{}", router_path, route.path);
+            println!("Path in route: {}, path from req: {}", path, req.path);
+            if paths_match(&path, &mut req) {
+                println!("Route middleware match");
+                let route_params = collect_route_params(&path, &req.path);
+                req.route_params = route_params;
+                route.handle(req, res);
+            }
         }
 
         // look through routes
@@ -188,6 +211,13 @@ impl RouterService for Router {
         let method = String::from("DELETE");
         let path = String::from(path);
         self.create_route(path, f, method);
+        self
+    }
+
+    fn middleware(&mut self, path: &str, f: Middleware) -> &mut Self {
+        let method = String::from("*");
+        let path = String::from(path);
+        self.create_middleware_route(path, f, method);
         self
     }
 
