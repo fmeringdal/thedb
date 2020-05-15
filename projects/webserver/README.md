@@ -63,7 +63,7 @@ let createUser = |req: &Request, res: &mut Response| {
 };
 
 user_router
-    .get("/:userId", Box::new(getUser)); // Will be accessible at path: /users/:userId
+    .get("/:userId", Box::new(getUser)) // Will be accessible at path: /users/:userId
     .post("/", Box::new(createUser)); // Will be accessible at path: /users
 
 let getPost = |req: &Request, res: &mut Response| {
@@ -75,7 +75,7 @@ let createPost = |req: &Request, res: &mut Response| {
 };
 
 post_router
-    .get("/:postId", Box::new(getPost)); // Will be accessible at path: /posts/:postId
+    .get("/:postId", Box::new(getPost)) // Will be accessible at path: /posts/:postId
     .post("/", Box::new(createPost)); // Will be accessible at path: /posts
 
 let user_router_path_prefix = "/users";
@@ -83,7 +83,7 @@ let post_router_path_prefix = "/posts";
 
 // Mount routers into server (parent router)
 server
-    .mount(user_router_path_prefix, user_router); 
+    .mount(user_router_path_prefix, user_router)
     .mount(post_router_path_prefix, post_router);
 // To create additional nesting just mount other routers on user_router or post_router or some other router
 
