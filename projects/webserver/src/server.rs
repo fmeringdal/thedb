@@ -48,7 +48,6 @@ impl Server {
             res.status(400);
         }
 
-        
         Server::create_response(stream, &res);
     }
 

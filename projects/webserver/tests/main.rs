@@ -27,5 +27,6 @@ mod tests {
         };
     
         server.get("/health", Box::new(handler));
+        server.listen(8989);
     }
 }

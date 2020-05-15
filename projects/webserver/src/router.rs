@@ -82,7 +82,7 @@ fn collect_route_params(route_path: &String, called_path: &String) -> HashMap<St
 }
 
 fn path_is_subpath(route_path: &String, called_path: &String) -> bool {
-    if *route_path == *called_path {
+    if *route_path == *called_path || route_path == "" {
         return true;
     }
 
@@ -132,7 +132,6 @@ impl Router {
     }
 
     pub fn handle_request(&self, mut req: &mut Request, res: &mut Response, parent_path: &String) -> bool {
-        
         let router_path = format!("{}{}", parent_path, self.path);
         if !path_is_subpath(&router_path, &req.path) {
             return false;
@@ -141,8 +140,10 @@ impl Router {
         // look through routes
         for route in &self.routes {
             let path = format!("{}{}", router_path, route.path);
+            println!("Path in route: {}, path from req: {}", path, req.path);
             if route.method == req.method &&
             paths_match(&path, &mut req) {
+                println!("Route match");
                 let route_params = collect_route_params(&path, &req.path);
                 req.route_params = route_params;
                 route.handle(req, res);
