@@ -46,7 +46,28 @@ impl Response {
         }
     }
 
-    pub fn get_json(&mut self) -> &String {
+    pub fn get_json(&self) -> &String {
         return &self.json;
+    }
+
+    pub fn get_http_response(&self) -> String {
+        let status = self.get_status();
+        let status_message = self.get_status_message();
+        let status_line = &format!("HTTP/1.1 {} {}\r\n", status, status_message);
+
+        let message_body = self.get_json();
+        let content_type = &format!("Content-Length: {}\r\n", message_body.len());
+        let content_length = &format!("Content-Type: {}\r\n", "application/json; charset=utf-8");
+        let access_control = &format!("access-control-allow-origin: {}\r\n\r\n", "*");
+        
+        let response = format!("{}{}{}{}{}", 
+            status_line,
+            content_length,
+            content_type,
+            access_control,
+            message_body
+        );
+
+        return response;
     }
 }

@@ -119,12 +119,7 @@ impl Router {
     }
 
     fn create_route(&mut self, path: String, f: Controller, method: String){
-        let route = Route {
-            path,
-            handler: f,
-            method
-        };
-        
+        let route = Route::new(path, f, method);
         self.routes.push(route);
     }
 
@@ -150,7 +145,7 @@ impl Router {
             paths_match(&path, &mut req) {
                 let route_params = collect_route_params(&path, &req.path);
                 req.route_params = route_params;
-                route.handler(req, res);
+                route.handle(req, res);
                 return true;
             }
         }
