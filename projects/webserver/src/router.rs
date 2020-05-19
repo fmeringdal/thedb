@@ -1,6 +1,7 @@
 use crate::route::{Route, MiddlewareRoute};
 use crate::request::Request;
 use crate::response::Response;
+use serde_json::Value;
 
 use std::collections::HashMap;
 
@@ -154,8 +155,6 @@ impl Router {
             println!("Path in route: {}, path from req: {}", path, req.path);
             if paths_match(&path, &mut req) {
                 println!("Route middleware match");
-                let route_params = collect_route_params(&path, &req.path);
-                req.route_params = route_params;
                 route.handle(req, res);
             }
         }

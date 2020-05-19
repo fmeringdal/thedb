@@ -3,7 +3,7 @@ extern crate burner;
 // use std::thread;
 use burner::{Server, Request, Response, Router, RouterService};
 // use std::time::Duration;
-use serde_json::{json};
+use serde_json::{json, Value};
 
 mod tests {
 
@@ -20,13 +20,14 @@ mod tests {
 
         let handler = |_req: &Request, res: &mut Response| {
             println!("Welcome");
-            std::thread::sleep(std::time::Duration::from_secs(5));
+            // std::thread::sleep(std::time::Duration::from_secs(5));
+            // ctx.
             let val = json!({ "tester": 2 });
             res.json(&val);
             res.status(200);
         };
     
         server.get("/health", Box::new(handler));
-        server.listen(8989);
+        server.get("/", Box::new(handler));
     }
 }

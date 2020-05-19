@@ -1,8 +1,7 @@
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::net::TcpListener;
-use serde_json::{json, from_str};
-use std::collections::HashMap;
+use serde_json::{Value, json};
 use std::sync::Arc;
 
 use crate::router::{Router, Controller, RouterService, Middleware};
