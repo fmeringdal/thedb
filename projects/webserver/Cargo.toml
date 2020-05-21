@@ -1,6 +1,6 @@
 [package]
 name = "burner"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Fredrik Meringdal <fmeringdal@hotmail.com>"]
 edition = "2018"
 description = "Mini REST server"
