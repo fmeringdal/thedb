@@ -30,12 +30,12 @@ impl Server {
  
     fn create_response(mut stream: TcpStream, res: &Response){
         let response = res.get_http_response();
-        stream.write(response.as_bytes()).unwrap();    
+        stream.write(response.as_bytes()).unwrap(); 
         stream.flush().unwrap();
     }
 
     pub fn handle_connection(&self, mut stream: TcpStream) {
-        let mut buffer = [0; 512];
+        let mut buffer = [0; 1024];
         stream.read(&mut buffer).unwrap();
         let raw_request = String::from_utf8_lossy(&buffer);
 
@@ -65,7 +65,6 @@ impl Server {
             let stream = match stream {
                 Ok(stream) => stream,
                 Err(err) => {
-                    println!("{}", err);
                     continue;
                 }
             };

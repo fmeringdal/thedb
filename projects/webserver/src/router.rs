@@ -152,9 +152,7 @@ impl Router {
         // look through middleware
         for route in &self.routes {
             let path = format!("{}{}", router_path, route.path);
-            println!("Path in route: {}, path from req: {}", path, req.path);
             if paths_match(&path, &mut req) {
-                println!("Route middleware match");
                 route.handle(req, res);
             }
         }
@@ -162,10 +160,8 @@ impl Router {
         // look through routes
         for route in &self.routes {
             let path = format!("{}{}", router_path, route.path);
-            println!("Path in route: {}, path from req: {}", path, req.path);
             if route.method == req.method &&
             paths_match(&path, &mut req) {
-                println!("Route match");
                 let route_params = collect_route_params(&path, &req.path);
                 req.route_params = route_params;
                 route.handle(req, res);

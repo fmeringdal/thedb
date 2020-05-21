@@ -24,10 +24,7 @@ impl Request {
     }
 
     fn parse_request_line(request_line: &str) -> Result<(&str, &str), &str> {
-        println!("Invalid request line, {}", request_line);
         let request_line: Vec<&str> = request_line.split_whitespace().collect();
-        println!("{}", request_line.len());
-        println!("{}", request_line[0]);
         if request_line.len() > 1 {
             Result::Ok((request_line[0], request_line[1]))
         } else {

@@ -19,9 +19,6 @@ mod tests {
         let mut server = Server::new();
 
         let handler = |_req: &Request, res: &mut Response| {
-            println!("Welcome");
-            // std::thread::sleep(std::time::Duration::from_secs(5));
-            // ctx.
             let val = json!({ "tester": 2 });
             res.json(&val);
             res.status(200);
@@ -29,5 +26,7 @@ mod tests {
     
         server.get("/health", Box::new(handler));
         server.get("/", Box::new(handler));
+
+        server.listen(8989);
     }
 }

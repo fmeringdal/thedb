@@ -64,8 +64,8 @@ impl Response {
         let status_line = &format!("HTTP/1.1 {}\r\n", status);
 
         let message_body = self.get_json();
-        let content_type = &format!("content-length: {}\r\n", message_body.len());
-        let content_length = &format!("content-type: {}\r\n", "application/json; charset=utf-8");
+        let content_length = &format!("content-length: {}\r\n", message_body.len());
+        let content_type = &format!("content-type: {}\r\n", "application/json; charset=utf-8");
         let connection = &format!("connection: {}\r\n", "keep-alive");
         let access_control = &format!("access-control-allow-origin: {}\r\n\r\n", "*");
         
