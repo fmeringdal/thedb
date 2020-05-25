@@ -54,29 +54,32 @@ let mut server = Server::new();
 let mut user_router = Router::new();
 let mut post_router = Router::new();
 
-let getUser = |req: &Request, res: &mut Response| {
+let get_user = |req: &Request, res: &mut Response| {
     println!("Get user controller");
+    let user_id = req.route_params.get("userId").unwrap();
+    let response = format!("Hello user {}", user_id);
+    res.send(&response);
 };
 
-let createUser = |req: &Request, res: &mut Response| {
-    println!("Create user controller");
+let create_user = |req: &Request, res: &mut Response| {
+    res.send("Create user controller");
 };
 
 user_router
-    .get("/:userId", Box::new(getUser)) // Will be accessible at path: /users/:userId
-    .post("/", Box::new(createUser)); // Will be accessible at path: /users
+    .get("/:userid", Box::new(get_user)) // Will be accessible at path: /users/:userId
+    .post("/", Box::new(create_user)); // Will be accessible at path: /users
 
-let getPost = |req: &Request, res: &mut Response| {
-    println!("Get post controller");
+let get_post = |req: &Request, res: &mut Response| {
+    res.send("Get post controller");
 };
 
-let createPost = |req: &Request, res: &mut Response| {
-    println!("Create post controller");
+let create_post = |req: &Request, res: &mut Response| {
+    res.send("Create post controller");
 };
 
 post_router
-    .get("/:postId", Box::new(getPost)) // Will be accessible at path: /posts/:postId
-    .post("/", Box::new(createPost)); // Will be accessible at path: /posts
+    .get("/:postid", Box::new(get_post)) // Will be accessible at path: /posts/:postId
+    .post("/", Box::new(create_post)); // Will be accessible at path: /posts
 
 let user_router_path_prefix = "/users";
 let post_router_path_prefix = "/posts";

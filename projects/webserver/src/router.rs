@@ -46,7 +46,6 @@ fn shuld_match_path() {
         let route_path = &String::from(test_pair.0);
         let called_path = &String::from(test_pair.1); 
         let should_match = test_pair.2;
-        println!("Testing route_path: {} and called path: {}", route_path, called_path);
         assert_eq!(
             paths_match(route_path, called_path),
             should_match
@@ -110,7 +109,6 @@ fn paths_match(route_path: &String, called_path: &String) -> bool {
     remove_empty_last_el(&mut called_path_dir);
 
     if route_path_dir.len() != called_path_dir.len() {
-        println!("Worng length");
         return false;
     }
 
@@ -125,7 +123,6 @@ fn paths_match(route_path: &String, called_path: &String) -> bool {
                 nested_called_path.truncate(nested_called_path.len() - 1);
             }
             if nested_route_path != nested_called_path {
-                println!("Testing 2 route_path: {} and called path: {}", nested_route_path, nested_called_path);
                 return false;
             }
         }
@@ -137,8 +134,10 @@ fn paths_match(route_path: &String, called_path: &String) -> bool {
 
 fn collect_route_params(route_path: &String, called_path: &String) -> HashMap<String, String> {
 
-    let route_path_dir: Vec<&str> = route_path.split("/").collect();
-    let called_path_dir: Vec<&str> = called_path.split("/").collect();
+    let mut route_path_dir: Vec<&str> = route_path.split("/").collect();
+    let mut called_path_dir: Vec<&str> = called_path.split("/").collect();
+    remove_empty_last_el(&mut route_path_dir);
+    remove_empty_last_el(&mut called_path_dir);
 
     let mut params = HashMap::new();
 
@@ -219,12 +218,12 @@ impl Router {
         }
 
         // look through middleware
-        for route in &self.routes {
-            let path = format!("{}{}", router_path, route.path);
-            if paths_match(&path, &req.path) {
-                route.handle(req, res);
-            }
-        }
+        // for route in &self.middleware {
+        //     let path = format!("{}{}", router_path, route.path);
+        //     if paths_match(&path, &req.path) {
+        //         route.handle(req, res);
+        //     }
+        // }
 
         // look through routes
         for route in &self.routes {

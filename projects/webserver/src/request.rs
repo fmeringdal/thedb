@@ -28,7 +28,6 @@ impl Request {
         if request_line.len() > 1 {
             Result::Ok((request_line[0], request_line[1]))
         } else {
-            println!("Invalid request line");
             Result::Err("Invalid request line.")
         }
     }

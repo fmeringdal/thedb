@@ -43,7 +43,6 @@ impl Server {
         if let Ok(mut req) = Request::from(&raw_request) {
             self.mount_router.handle_request(&mut req, &mut res, &String::from(""));
         } else {
-            println!("Unable to parse request from client");
             res.status(400);
         }
 
