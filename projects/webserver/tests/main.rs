@@ -9,12 +9,12 @@ mod tests {
 
     use super::*;
 
-    #[test]
+    // #[test]
     fn dummy_test(){
         assert_eq!(2 + 2, 4);
     }
 
-    #[test]
+    // #[test]
     fn port_test(){
         let mut server = Server::new();
 
@@ -23,10 +23,16 @@ mod tests {
             res.json(&val);
             res.status(200);
         };
+
+        let mut user_router = Router::new();
     
         server.get("/health", Box::new(handler));
         server.get("/", Box::new(handler));
+        user_router.get("/:userId", Box::new(handler));
+        user_router.get("/", Box::new(handler));
 
-        server.listen(8989);
+        server.mount("/user", user_router);
+
+        // server.listen(8989);
     }
 }
