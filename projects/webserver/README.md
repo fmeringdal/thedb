@@ -2,6 +2,8 @@
 
 ## Quick start
 ```rust
+extern crate burner;
+
 use burner::{Server, Request, Response, RouterService}; // Import into scope
 
 // Create the server
@@ -47,6 +49,8 @@ or
 Nested routing is also possible. ```Router``` objects acts as building blocks and can be composed together by calling ```.mount``` on the parent Router with the child Router. Server extends (rust doesnt support inheritance, but ```Router``` and ```Server``` are implementing the same trait which is kind of similar to interfaces in other languages). So every method on ```Router``` is also available on ```Server```. Server will always act as the root router from which all requests will first be directed to.
 An example app that leverages nested Routers.
 ```rust
+extern crate burner;
+
 use burner::{Server, Request, Response, Router, RouterService}; // Import into scope
 
 // Initialize server and routers
@@ -56,7 +60,7 @@ let mut post_router = Router::new();
 
 let get_user = |req: &Request, res: &mut Response| {
     println!("Get user controller");
-    let user_id = req.route_params.get("userId").unwrap();
+    let user_id = req.route_params.get("userid").unwrap();
     let response = format!("Hello user {}", user_id);
     res.send(&response);
 };
